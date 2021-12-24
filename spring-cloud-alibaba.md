@@ -13,7 +13,7 @@
 
 ## 组件
 
-- [Spring Cloud Alibaba Nacos](spring-cloud-nacos.md)
+- [Spring Cloud Alibaba Nacos](spring-cloud-alibaba-nacos.md)
 
 
 
