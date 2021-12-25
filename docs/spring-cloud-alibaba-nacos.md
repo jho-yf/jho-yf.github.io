@@ -17,7 +17,7 @@
 
 ## 安装指南
 
-官网安装指南已经十分详细，可参考：
+参考官网安装指南：
 
 - [Nacos 快速开始](https://nacos.io/zh-cn/docs/quick-start.html)
 - [Nacos Docker 快速开始](https://nacos.io/zh-cn/docs/quick-start-docker.html)
