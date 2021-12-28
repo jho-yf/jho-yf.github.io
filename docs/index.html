@@ -4,23 +4,26 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://unpkg.com/docsify-toc@1.0.0/dist/toc.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/vue.css">
-  <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/pure.css"> -->
+  <link rel="stylesheet" href="https://unpkg.com/docsify-toc@1.0.0/dist/toc.css">
 </head>
 <body>
   <div id="app">Loading...</div>
   <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://unpkg.com/docsify-toc@1.0.0/dist/toc.js"></script>
   <script>
     var num = 0;
     // 支持mermaid：https://docsify.js.org/#/zh-cn/markdown?id=%e6%94%af%e6%8c%81-mermaid
+    // 支持toc：https://github.com/justintien/docsify-plugin-toc
     mermaid.initialize({ startOnLoad: false });
     window.$docsify = {
       name: '乙方小弟🤳笔记簿',
       coverpage: true,
       loadSidebar: true,    // 加载自定义侧边栏,默认加载_sidebar.md文件作为侧边栏
       onlyCover: true,
-      subMaxLevel: 4,       // 生成目录的最大层级,默认0
+      subMaxLevel: 2,       // 生成目录的最大层级,默认0
       repo: 'https://github.com/jho-yf/jho-yf.github.io',
       markdown: {
         renderer: {
@@ -33,7 +36,12 @@
             return this.origin.code.apply(this, arguments);
           }
         }
-      }
+      },
+      toc: {
+        scope: '.markdown-section',
+        headings: 'h1, h2, h3, h4, h5, h6',
+        title: 'Table of Contents',
+      },
     }
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
