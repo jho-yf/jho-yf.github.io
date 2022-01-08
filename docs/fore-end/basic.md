@@ -97,11 +97,11 @@ console.log(alias, age, language);
 
 ES6为字符串扩展了几个新的API：
 
-`includes()`：返回布尔值，表示是否找到了参数字符串
+- `includes()`：返回布尔值，表示是否找到了参数字符串
 
-`startsWith()`：返回布尔值，表示参数字符串是否在源字符串头部
+- `startsWith()`：返回布尔值，表示参数字符串是否在源字符串头部
 
-`endsWith()`：返回布尔值，表示参数字符串是否在源字符串尾部
+- `endsWith()`：返回布尔值，表示参数字符串是否在源字符串尾部
 
 ```javascript
 let str = "hello.es6";
@@ -215,6 +215,109 @@ hello(person);			// hello,jho
 ```
 
 
+
+#### 对象优化
+
+##### 新增API
+
+ES6给`Object`扩展了许多方法，如：
+
+- `keys(obj)`：获取对象的所有key形成的数组
+
+- `values(obj)`：获取对象的所有value形成的数组
+
+- `entries(obj)`：获取对象的所有key和value形成的二维数组。格式：`[[k1, v1], [k2, v2]]`
+
+- `assign(dest, ...src)`：将多个src对象的值拷贝到dest中。（第一层为深拷贝，第二层为浅拷贝）
+
+```javascript
+const person = {
+    name: "jack",
+    age: 21,
+    language: ["java", "js", "css"]
+}
+console.log(Object.keys(person));			// ['name', 'age', 'language']
+console.log(Object.values(person));			// ['jack', 21, Array(3)]
+console.log(Object.entries(person));		// [Array(2), Array(2), Array(2)]
+
+const target = {a: 1};
+const source1 = {b: 2};
+const source2 = {c: 3};
+Object.assign(target, source1, source2);
+console.log(target);						// {a: 1, b: 2, c: 3}
+```
+
+##### 声明对象的简写方式
+
+ES6属性名和属性值变量名一样，可以忽略
+
+```javascript
+const age = 23
+const name = "jho"
+
+// 传统写法
+const person1 = {
+    age: age,
+    name: name
+}
+console.log(person1)
+
+// ES6
+const person2 = { age, name }
+console.log(person2)
+```
+
+##### 对象的函数属性简写
+
+```javascript
+let person = {
+    name: "jho",
+    // 传统
+    eat1: function(food) {
+        console.log(this.name + " eat " + food);
+    },
+    // 箭头函数：获取不到this
+    eat2: food => console.log(person.name + " eat " + food),
+    // 简写版
+    eat3(food) {
+        console.log(this.name + " eat " + food);
+    }
+}
+person.eat1("apple");
+person.eat2("cake");
+person.eat3("banana");
+```
+
+##### 对象的扩展运算符
+
+扩展运算符（`...`）用于取出参数对象所有可遍历属性然后拷贝到当前对象
+
+```javascript
+// 拷贝对象（深拷贝）
+let person = {
+    name: "jho",
+    age: 15
+}
+let someone = { ...person }
+console.log(someone);			// {name: 'jho', age: 15}
+
+// 合并对象
+let age = {age: 15}
+let name = {name: "jho", age:21}
+// 如果两个对象的字段名重复，后面对象字段会覆盖前面对象的字段值
+let p = { ...age, ...name }
+console.log(p);			// {age: 21, name: 'jho'}
+```
+
+#### 数组优化
+
+##### map
+
+`map()`：接收一个函数，将原数组中的所有元素用这个函数处理后放入新数组返回
+
+##### reduce
+
+`reduce()`：为数组中的每一个元素一次执行回调函数，不包括数组中被删除或从未被赋值的元素
 
 ## Vue
 
