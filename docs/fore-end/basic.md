@@ -1,5 +1,7 @@
 # 认识前端
 
+
+
 ## ES6
 
 ### 简介
@@ -44,6 +46,8 @@ console.log(y);		// Uncaught ReferenceError: y is not defined
 let y = 1;
 ```
 
+
+
 #### const声明常量（只读变量）
 
 `const`声明之后不允许改变
@@ -59,6 +63,8 @@ a = 3;				// Uncaught TypeError: Assignment to constant variable.
 let a;				// undefined
 const b;			// Uncaught SyntaxError: Missing initializer in const declaration
 ```
+
+
 
 #### 结构表达式
 
@@ -82,6 +88,8 @@ const person = {
 const { name:alias, age, language} = person;
 console.log(alias, age, language);
 ```
+
+
 
 #### 字符串扩展
 
@@ -132,3 +140,82 @@ let info = `名字：${name},年龄：${age + 10},${fun()}`;
 console.log(info);			// 名字：jho,年龄：28,hello world
 ```
 
+
+
+#### 函数优化
+
+##### 参数默认值
+
+在ES6以前，无法给一个函数参数设置默认值，只能手动判断
+
+```javascript
+function add(a, b) {
+    // 判断b是否为空，为空就给默认值1
+    b = b || 1;
+    return a + b;
+}
+// 调用的时候就可以只传一个参数
+console.log(add(10));
+```
+
+ES6之后，可以手动设置参数默认值
+
+```javascript
+function add(a, b = 1) {
+    return a + b;
+}
+console.log(add(10));
+```
+
+##### 不定参数
+
+不定参数用来表示不确定参数个数的参数列表
+
+```javascript
+function fun(str, ...values) {
+    console.log(str)
+    console.log(values.length)
+}
+fun("hello", 1, 2)
+fun("hello", 1, 2, 3, 4)
+```
+
+##### 箭头函数
+
+ES6中定义**函数的简写方式**
+
+```javascript
+// 普通函数
+var print = function(obj) {
+    console.log(obj);
+}
+
+// 箭头函数(单参数)
+var print = obj => console.log(obj);
+print("hello")
+
+// 箭头函数(多参数)
+var sum = (a, b) => a + b;
+console.log(sum(1, 2));
+
+// 箭头函数(多行语句)
+var sum = (a, b) => {
+    c = a + b;
+    return a + c;
+}
+console.log(sum(1, 2));
+
+// 箭头函数 + 解构表达式
+const person = {
+    name: "jho",
+    age: 21
+}
+var hello = ({name}) => console.log("hello," + name);
+hello(person);			// hello,jho
+```
+
+
+
+## Vue
+
+更新中...
