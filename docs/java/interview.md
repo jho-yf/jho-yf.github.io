@@ -2,6 +2,14 @@
 
 
 
+## JVM
+
+### JVM垃圾回收机制
+
+#### GC发生在JVM哪不发，有几种GC，他们的算法是什么
+
+
+
 ## Spring
 
 ### Spring MVC
