@@ -309,15 +309,141 @@ let p = { ...age, ...name }
 console.log(p);			// {age: 21, name: 'jho'}
 ```
 
+
+
 #### 数组优化
 
 ##### map
 
 `map()`：接收一个函数，将原数组中的所有元素用这个函数处理后放入新数组返回
 
+```javascript
+let arr = ['1', '20', '-5'];
+arr = arr.map((item)=>{
+   return item * 2; 
+});
+// arr = arr.amp(item=>item * 2);
+console.log(arr);			// [2, 40, -10]
+```
+
 ##### reduce
 
-`reduce()`：为数组中的每一个元素一次执行回调函数，不包括数组中被删除或从未被赋值的元素
+`reduce()`：为数组中的每一个元素一次执行回调函数，不包括数组中被删除或从未被赋值的元素。接收四个参数：初始值（或者上一次回调函数的返回值）、当前元素值、当前索引、调用`reduce`的数组。
+
+**语法：**
+
+```javascript
+arr.reduce(callback, [initialValue])
+```
+
+`callback`（执行数组中每个值的函数，包含四个参数）：
+
+- `previousValue`：上次调用回调返回的值，或者是提供初始值（`initialValue`）
+- `currentValue`：数组中当前被处理的元素
+- `index`：当前元素在数组中的索引
+- `array`：调用reduce的数组
+
+`initialValue`：作为第一次调用callback的第一个参数
+
+```javascript
+let arr = [1, 20, -5];
+let result = arr.reduce((a, b)=> {
+    console.log("上次处理后：" + a);
+    console.log("当前正处理：" + b);
+    return a + b;
+}, 100);
+console.log(result);			// 116
+```
+
+
+
+#### Promise异步编排
+
+以下笔记来自：[理解JavaScript Promise](https://zhuanlan.zhihu.com/p/26523836)
+
+`Promise`说得通俗一点就是一种写代码的方式，并且是用来写JavaScript编程中的异步代码的，封装异步操作。
+
+##### 基本用法
+
+```javascript
+let p = new Promise((resolve, reject) => {
+  // 做一些事情
+  // 然后在某些条件下resolve，或者reject
+  if (/* 条件随便写^_^ */) {
+    resolve()
+  } else {
+    reject()
+  }
+})
+
+p.then(() => {
+    // 如果p的状态被resolve了，就进入这里
+}, () => {
+    // 如果p的状态被reject
+}).then(...).then(...)
+```
+
+第一段调用了`Promise`构造函数创建实例，第二段调用了`Promise`示例的`then()`方法。
+
+
+
+#### 模块化
+
+##### 什么是模块化
+
+**模块化**就是把代码进行拆分，方便重复利用。类似于Java中的导包，而在JS中没有包的概念，而是**模块**。
+
+模块功能主要由`export`和`import`两个命令构成：
+
+- `export`：用于规定模块的外对接口
+- `import`：用于导入其他模块提供的功能
+
+##### export
+
+`export`可以导出基本类型变量、函数、数组、对象。
+
+```javascript
+// common.js
+const util = {
+    sum(a, b) {
+        return a + b;
+    }
+}
+
+function add(a, b) {
+    return a + b;
+}
+
+var name = "jho";
+var age = 21;
+
+export {util, add, name, age}
+```
+
+默认`export`
+
+```javascript
+// test.js
+export default {
+    sum(a, b) {
+        return a + b;
+    }
+}
+```
+
+##### import
+
+```javascript
+import util from "./common.js"
+import {name,age} from "./common.js"
+import test from "./test.js"			// 这里的test可以任意命名
+
+util.sum(1, 2);
+console.log(name);
+test.sum(1, 2);
+```
+
+
 
 ## Vue
 
