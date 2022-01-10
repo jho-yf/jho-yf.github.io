@@ -447,4 +447,93 @@ test.sum(1, 2);
 
 ## Vue
 
+### MVVM思想
+
+![edd0080fb145315fbc96164c219fee7e_hd](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201102248019.png)
+
+在`MVVM`之前，前端人员从后端获取需要的数据模型，然后要通过`DOM`操作`Model`渲染到`View`中。而后当用户操作视图，还需通过`DOM`获取`View`中的数据，然后同步到`Model`中。`MVVM`中的**VM**做的事情就是把`DOM`操作完全封装起来，开发人员不用再去更新`Model`和`View`之间是如何相互影响的。
+
+**M：**Model，模型，包括数据和一些基本操作
+
+**V：**View，视图，页面渲染结果
+
+**VM：**View-Model，模型与视图间的双向操作（无需开发人员操作）
+
+- 只要Model发生改变，View上自然就会表现出来。
+
+- 当用户修改了View，Model中的数据也会跟着改变
+
+
+
+### Vue简介
+
+`Vue`是一套用于构建用户界面的**渐进式框架**。与其他大型框架不同的是，Vue被设计为可以自底向上逐层应用。Vue的核心库只关注视图层，不仅易于上手，还便于与第三方库或既有项目整合。另一方面，当与现代化的工具链以及各种支持类库结合使用时，Vue也完全能够为复杂的单页应用提供驱动。
+
+> 官网：https://cn.vuejs.org/
+>
+> 教学文档：[2.x](https://cn.vuejs.org/v2/guide/)、[3.x](https://v3.cn.vuejs.org/guide/introduction.html)
+>
+> Github：https://github.com/vuejs/vue
+
+
+
+### HelloWorld
+
+使用`npm`安装vue
+
+```bash
+# 最新稳定版
+npm install vue
+```
+
+编写HelloWorld
+
+```html
+<body>
+
+    <div id="app">
+        <h1>hello,{{name}}</h1>
+        <input type="text" v-model="str">
+        <p>{{str}}</p>
+        <button v-on:click="num++">点赞{{num}}</button>
+        <button v-on:click="cancel">取消</button>
+    </div>
+
+    <script src="./node_modules/vue/dist/vue.js"></script>
+
+    <script>
+        // vue声明式渲染
+        // 双向绑定：模型变化，视图变化。反之亦然。
+        let vm = new Vue({
+            el: "#app",                 // el 绑定元素
+            data: {                     // data 封装数据
+                name: "JHO",
+                str: "输入什么就显示什么",
+                num: 0
+            },
+            methods: {                  // methods 封装方法
+                cancel() {
+                    if (this.num > 0) {
+                        this.num--;
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+```
+
+
+
+### 指令
+
+#### v-text、v-html
+
+
+
+
+
+---
+
 更新中...
