@@ -1623,23 +1623,216 @@ graph LR
 
 基于数组的阻塞队列实现，在ArrayBlockingQueue内部，维护了一个**定长的数组**，以便**缓存队列中的数据对象**。除了定长数组之外，ArrayBlockingQueue内部还保存着**两个整形变量**，分别标识着队列的**头部和尾部**在数组中的位置。
 
-ArrayBlockingQueue在生产者放入数据和消费者消费数据，都是用同一个锁，由此也意味着两者并不是真正意义上的并发运行。
-
 #### LinkedBlockingQueue（常用）
+
+**由链表结构组成的有界阻塞队列。（默认大小为`Integer.MAX_VALUE`）**
+
+**基于链表的阻塞队列**，通ArrayListBlockingQueue类似，其内部也维持着一个数据缓冲队列（该队列由一个链表构成），当生产者往队列中放入一个数据时，队列会从生产者手中获取数据，并缓存在队列内部，而生产者立即返回；只有当队列缓存区达到最大值缓存容量时，才会阻塞生产者队列，直到消费者从队列中消费掉一份数据，生产者线程会被唤醒。反之对于消费者端的处理也给予同样的原理。
+
+#### DelayQueue
+
+**使用优先级队列实现的延迟无界阻塞队列**
+
+DelayQueue中的元素只有当其指定的延迟时间到了，才能够从队列中获取到该元素。DelayQueue是一个没有大小限制的队列，因此往队列中插入数据的操作（生产者）永远不会被阻塞，而只有获取数据的操作（消费者）才会被阻塞。
+
+#### PriorityBlockingQueue
+
+支持优先级排序的无界阻塞队列
+
+#### SynchronousQueue
+
+不存储元素的阻塞队列，也即单个元素的队列
+
+#### LinkedTransferQueue
+
+由链表组成的无界阻塞队列
+
+#### LinkedBlockingDeque
+
+由链表组成的双向阻塞队列
 
 
 
 ### 阻塞队列核心方法
 
+| 方法类型 | 描述                                                         |
+| -------- | ------------------------------------------------------------ |
+| 抛出异常 | 当阻塞队列满时，再往队列里add插入元素就会抛出`IllegalStateExcetion:Queue full`<br />当阻塞队列空时，再往队列里remove移除元素会抛出`NoSuchElementException` |
+| 特殊值   | 插入方法，成功true，失败false<br />移除方法，成功返回出队列元素，队列里没有就返回null |
+| 一直阻塞 | 当阻塞队列满时，生产者线程继续往队列里put元素，队列会一直阻塞生产者线程直到put数据或响应中断退出<br />当阻塞队列空时，消费者线程试图从队列里take元素，队列会一直阻塞消费者线程直到队列可用 |
+| 超时退出 | 当阻塞队列满时，队列会阻塞生产者线程一定时间，超过限时后生产者线程会退出 |
+
+| 方法类型 | 抛出异常  | 特殊值   | 阻塞   | 超时                 |
+| -------- | --------- | -------- | ------ | -------------------- |
+| 插入     | add(e)    | offer(e) | put(e) | offer(e, time, unit) |
+| 移除     | remove()  | poll()   | take() | poll(time, unit)     |
+| 检查     | element() | peek()   | 不可用 | 不可用               |
+
 
 
 ## ThreadPool 线程池
+
+### 线程池概述
+
+线程池（Thread Pool）：一种线程使用模式。线程过多会带来调度开销，进而影响缓存局部性和整体性能。而线程池维护着多个线程，等待着监督管理者分配可并发执行的任务。这避免了在处理短时间任务时创建于销毁线程的代价。线程池不仅能够保证内核的充分利用，还能防止过分调度。
+
+#### 线程池的优势
+
+线程池做的工作主要是控制允许的线程数量，处理过程中将任务放入队列，然后在线程创建后启动这些任务，如果线程数量超过了最大数量，超过数量的线程排队等候，等其他线程执行完毕，再从队列中取出任务来执行。
+
+#### 主要特点
+
+- 降低资源消耗：通过重复利用已创建的线程降低线程创建和销毁造成的消耗。
+
+- 提供响应速度：当任务到达时，任务可以不需要等待线程创建就能立即执行。
+
+- 提高线程的可管理性：线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统稳定性，使用线程池可以进行统一分配、调优和监控。
+
+
+
+### 线程池架构
+
+Java中的线程池是通过`Executor`框架实现的，该框架中用到了`Executor`、`Executors`、`ExecutorService`、`ThreadPoolExecutor`这几个类。
+
+![image-20220130101006604](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201301010692.png)
+
+### 线程池使用方式
+
+一池N线程
+
+```java
+ExecutorService threadPool = Executors.newFixedThreadPool(5);
+
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>());
+}
+```
+
+一池一线程，一个任务一个任务执行
+
+```java
+ExecutorService threadPool = Executors.newSingleThreadExecutor();
+
+public static ExecutorService newSingleThreadExecutor() {
+        return new FinalizableDelegatedExecutorService
+            (new ThreadPoolExecutor(1, 1,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue<Runnable>()));
+    }
+```
+
+线程池根据需求创建线程，自动扩容
+
+```java
+ExecutorService threadPool = Executors.newCachedThreadPool();
+
+public static ExecutorService newCachedThreadPool() {
+        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                      60L, TimeUnit.SECONDS,
+                                      new SynchronousQueue<Runnable>());
+    }
+```
+
+### 线程池底层原理
+
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler) {
+    
+}
+```
+
+
+
+### 线程池的七个参数
+
+`corePoolSize`：常驻线程数量（核心）
+
+`maximumPoolSize`：最大线程数量
+
+`keepAliveTime`：线程存活时间
+
+`unit`：线程存活时间单位
+
+`workQueue`：阻塞队列
+
+`threadFactory`：线程工厂，用于创建线程
+
+`handler`：拒绝策略
+
+### 线程池底层工作流程
+
+```mermaid
+flowchart LR
+	main_thread([主线程]) --> execute --> |1| thread1
+	execute --> |2| queue
+	execute --> |3| thread3
+	execute --> |4| RejectedExecutionHandler
+	subgraph RejectedExecutionHandler
+		AbortPolicy
+		DiscardPolicy
+		CallerRunsPolicy
+		DiscardOldestPolicy
+	end
+	subgraph queue
+		ele1(( ))
+		ele2(( ))
+		ele3(( ))
+	end
+	subgraph maximunPool
+		subgraph corePool
+			thread1((线程))
+			thread2((线程))
+		end
+		thread3((线程))
+		thread4((线程))
+		thread5((线程))
+	end
+	
+```
+
+1. 在创建线程池之后，线程池的线程数为0
+2. 当调用`execute()`方法添加一个请求任务时，线程池会做出如下判断：
+   - 如果正在运行的线程数小于`corePoolSize`，那么马上创建线程运行这个任务
+   - 如果正在运行的线程数大于或等于`corePoolSize`，那么将这个任务放入队列。
+   - 如果队列满了且正在运行的线程数还小于`maximumPoolSize`，则创建非核心线程立刻运行这个任务
+   - 如果队列满了且正在运行的线程数量大于或者等于`maximumPoolSize`，那么线程池会启动饱和拒绝策略来执行。
+3. 当一个线程完成任务时，它会从队列中去下一个任务来执行。
+4. 当一个线程空闲超过一定时间（`keepAliveTime`）时，线程会做出如下判断：
+   - 如果当前运行的线程数大于`corePoolSize`，那么这个线程会被停掉。
+   - 若线程池的所有任务完成后，线程池线程数量将会收缩到`corePoolSize`的大小。
+
+#### JDK内置的拒绝策略
+
+- **AbortPolicy（默认）**：直接抛出`RejectedExecutionException`异常阻止系统正常运行
+- **CallerRunsPolicy**：调用者运行的调节机制，该策略既不会抛弃任务，也不会抛出异常，而是将某些任务回退到调用者，从而降低新任务的流量
+- **DiscardOldestPolicy**：抛弃队列中等待最久的任务，然后把当前任务加入队列中尝试再次提交当前任务
+- **DiscardPolicy**：该策略默默地丢弃无法处理的任务，不予以任何处理也不抛出异常。如果允许任务丢失，这是最好的一种策略。
+
+### 自定义线程池
+
+> 阿里巴巴Java开发手册：
+>
+> 使用Executors返回线程池对象的弊端如下：
+>
+> - FixedThreadPool和SingleThreadPool：允许的请求队列长度为Integer.MAX_VALUE，可能会堆积大量的请求，从而导致OOM
+> - CachedThreadPool和ScheduledThreadPool：允许的创建线程数量为Integer.MAX_VALUE，可能会创建大量的线程，从而导致OOM
 
 
 
 ## Fork/Join 分支合并框架
 
+Fork/Join可以将大的任务拆分成多个子任务进行并行处理，最后将子任务合并成最后的计算结果，并进行输出。
 
+- Fork：把一个复杂任务进行拆分，大事化小
+- Join：把拆分的任务执行结果进行合并
 
 ## CompletableFuture 异步回调
 
