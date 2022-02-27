@@ -21,6 +21,7 @@
 - 工具
   - [Git](tools/git)
   - [Nginx](tools/nginx)
+  - [Swagger2](tools/swagger2)
 
 - 读书笔记
   - [Spring实战5](reading-notes/spring-in-action5)
