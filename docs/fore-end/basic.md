@@ -526,14 +526,341 @@ npm install vue
 
 
 
-### 指令
+### 指令（v-xx）
+
+#### 插值表达式
+
+##### 花括号
+
+格式：`{{表达式}}`
+
+说明：
+
+- 该表达式支持JS语法，可以调用JS内置函数（必须有返回值）
+- 表达式必须有返回结果
+- 可以直接获取Vue示例中定义的数据或函数
+
+##### 插值闪烁
+
+使用`{{xxx}}`方式在网速较慢时会出现问题。在数据未加载完成时，页面会显示出原始的`{{xxx}}`，加载完毕才会显式正确数据。
 
 #### v-text、v-html
 
+- `v-text`：给标签体绑定文字
+- `v-html`：给标签体内嵌html
+- `v-text`、`v-html`属于**单向绑定**
+
+**代码**
+
+```html
+<body>
+    <div id="app">
+        {{msg}} {{1+1}} {{myMethod()}}
+        <br/>
+        <span v-html="msg"></span>
+        <br/>
+        <span v-text="msg"></span>
+    </br>
+    <script src="../node_modules/vue/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el:"#app",
+            data: {
+                msg: "<h1>Hello</h1>"
+            },
+            methods: {
+                myMethod() {
+                    return "myMethod...return"
+                }
+            }
+        })
+    </script>
+</body>
+```
+
+**输出**
+
+![image-20220304072055614](C:/Users/JHO/AppData/Roaming/Typora/typora-user-images/image-20220304072055614.png)
 
 
 
+#### v-bind
 
----
+给html标签的属性绑定内容，`v-bind`属于**单向绑定**
 
-更新中...
+**代码**
+
+```html
+<body>
+    <div id="app">
+        <a v-bind:href="blogLink">乙方小弟的个人笔记</a>
+        <!-- class,style增强 
+                v-bind:class="{class名:变量}"
+                v-bind:style="{style名:变量}"
+            -->
+        <span 
+            v-bind:class="{active:isActive,'text-danger':hasError}" 
+            v-bind:style="{color: colorVar,fontSize:size}">Hello~</span>
+    </div>
+    <script src="../node_modules/vue/dist/vue.js"></script>
+    <script>
+        let vm = new Vue({
+            el:"#app",
+            data: {
+                blogLink: "https://jho-yf.github.io",
+                isActive: true,
+                hasError: false,
+                colorVar: 'blue',
+                size: '36px'
+            }
+        })
+    </script>
+</body>
+```
+
+**输出**
+
+![image-20220304073335842](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203040733996.png)
+
+#### v-model
+
+对表单项，自定义组件的双向绑定
+
+**代码**
+
+```html
+<body>
+    <!-- 表单项目，自定义组件 -->
+    <div id="app">
+        精通的语言：
+        <input type="checkbox" v-model="language" value="Java"> Java
+        <br/>
+        <input type="checkbox" v-model="language" value="PHP"> PHP
+        <br/>
+        <input type="checkbox" v-model="language" value="Python"> Python
+        <br/>
+        选中了 {{language.join(",")}}
+    </div>
+    <script src="../node_modules/vue/dist/vue.js"></script>
+    <script>
+        let vm = new Vue({
+            el: "#app",
+            data: {
+                language: []
+            }
+        });
+    </script>
+</body>
+```
+
+**输出**
+
+![image-20220304075306676](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203040753848.png)
+
+
+
+#### v-on
+
+##### 基本用法
+
+```html
+<div id="app">
+    <!-- 事件中直接写入js片段 -->
+    <button v-on:click="num++">点赞</button>
+
+     <!-- 事件指定一个回调函数，必须是Vue实例中定义的函数 -->
+    <button v-on:click="cancel">取消</button>
+
+    <!-- @click是v-on:click的简写 -->
+    <button @click="cancel">取消</button>
+</div>
+    
+<script>
+    let vm = new Vue({
+        el: "#app",
+        data: {
+            num: 0,
+        },
+        methods: {
+            cancel() {
+                if (this.num > 0) {
+                    this.num--;
+                }
+            }
+        }
+    });
+</script>
+```
+
+##### 事件修饰符
+
+`Vue.js`为`v-on`提供了**事件修饰符**，修饰符是由点开头的指令后缀来表示的。
+
+- `.stop`：阻止事件冒泡到父元素
+- `.prevent`：阻止默认事件发生
+- `.capture`：使用事件捕获模式
+- `.self`：只有元素自身触发事件才执行，冒泡或捕获都不会执行
+- `.once`：只执行一次
+
+##### 按键修饰符
+
+在监听键盘事件时，经常需要检查常用的键值。
+
+```html
+<!-- 只有在keyCode是13时调用submit -->
+<input v-on:keyup.13="submit">
+
+<!-- 常用keyCode有提供别名 -->
+<input v-on:keyup.enter="submit">
+<input @keyup.enter="submit">
+```
+
+常用按键别名：
+
+- `.enter`
+- `.tab`
+- `.delete`：捕获“删除”和“退格”键
+- `.esc`
+- `.space`
+- `.up`
+- `.down`
+- `.left`
+- `.right`
+
+
+
+#### v-for
+
+[代码示例](https://github.com/jho-yf/yf-vue-quick-start/blob/main/vue2/02%E6%8C%87%E4%BB%A4/05_v-for.html)
+
+#### v-if和v-show
+
+[代码示例](https://github.com/jho-yf/yf-vue-quick-start/blob/main/vue2/02%E6%8C%87%E4%BB%A4/06_v-if%E5%92%8Cv-show.html)
+
+#### v-else和v-else-if
+
+[代码示例](https://github.com/jho-yf/yf-vue-quick-start/blob/main/vue2/02%E6%8C%87%E4%BB%A4/07_v-else%E5%92%8Cv-else-if.html)
+
+
+
+### 计算属性和侦听器
+
+[计算属性和侦听器代码示例](https://github.com/jho-yf/yf-vue-quick-start/blob/main/vue2/03%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8/01_%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8.html)
+
+[过滤器代码示例](https://github.com/jho-yf/yf-vue-quick-start/blob/main/vue2/03%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7%E5%92%8C%E4%BE%A6%E5%90%AC%E5%99%A8/02_%E8%BF%87%E6%BB%A4%E5%99%A8.html)
+
+
+
+### 组件化
+
+在大型应用开发的时候，页面可以划分成很多部分。往往不同的页面，也会有相同的部分。但是如果每个页面都是独立开发，这无疑增加了我们的开发成本。所以我们会把页面的不同部分拆分成独立的组件，然后在不同页面就可以共享这些组件，避免重复开发。
+
+在vue中，所有的vue实例都是组件。
+
+![Component Tree](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203191518996.png)
+
+- 组件其实是个Vue实例，因此它在定义时也会接收：`data`、`methods`、生命周期函数等
+- 组件是不与页面元素绑定的，否则无法复用，因此没有el属性，组件的渲染需要html模板，所以添加了`template`属性，值就是HTML模板
+- 全局组件定义完毕，任何Vue实例都可以直接在HTML中通过组件名称来使用组件了
+- `data`必须是一个函数，不再是一个对象
+
+#### 代码
+
+```html
+<div id="app">
+    <button v-on:click="count++">我被点击了{{count}}次</button>
+    <counter></counter>
+    <counter></counter>
+    <counter></counter>
+    <counter></counter>
+    <br>
+    <button-counter></button-counter>
+    <button-counter></button-counter>
+    <button-counter></button-counter>
+</div>
+<script src="../node_modules/vue/dist/vue.js"></script>
+<script>
+    // 1、全局声明注册一个组件
+    Vue.component("counter", {
+        template: `<button v-on:click="count++">全局组件，我被点击了{{count}}次</button>`,
+        data() {
+            return {
+                count: 0
+            }
+        }
+    })
+
+    // 2、局部声明一个组件
+    const buttonCounter = {
+        template: `<button v-on:click="count++">局部组件，我被点击了{{count}}次</button>`,
+        data() {
+            return {
+                count: 0
+            }
+        }
+    };
+
+    new Vue({
+        el: "#app",
+        data: {
+            count: 0
+        },
+        // 注册组件
+        components: {
+            'button-counter': buttonCounter
+        }        
+    })
+</script>
+```
+
+
+
+### 生命周期和钩子函数
+
+#### 生命周期
+
+每个Vue实例在被创建时都要经过一系列的初始化过程：创建实例、装载模板、渲染模板等等。
+
+![Vue 实例生命周期](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203191549739.png)
+
+#### 钩子函数
+
+Vue为生命周期中的每一个状态都设置了钩子函数（监听函数）。每当Vue实例处于不同的生命周期时，对应的函数就会被触发调用。
+
+
+
+### vue模块化开发
+
+#### 全局安装`webpack`
+
+```shell
+npm install webpack -g
+```
+
+#### 全局安装vue脚手架
+
+```shell
+npm install -g @vue/cli-init
+```
+
+#### 初始化vue项目
+
+```shell
+# vue脚手架使用webpack模块初始化一个appname项目
+vue init webpack appname
+```
+
+#### 启动vue项目
+
+项目中的`package.json`中`scripts`，代表我们能运行的命令
+
+```shell
+# 启动项目方式一
+npm run dev
+# 启动项目方式二
+npm start
+
+# 打包项目
+npm run 
+```
+
