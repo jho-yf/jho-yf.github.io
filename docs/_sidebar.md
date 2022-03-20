@@ -26,3 +26,6 @@
 - 读书笔记
   - [Spring实战5](reading-notes/spring-in-action5)
   - [自己动手写Java虚拟机](reading-notes/write-your-owner-jvm)
+
+- 其他
+  - [跨域及其解决方法](others/cors)
