@@ -545,6 +545,35 @@ atomNum计算结果：20000
 
 
 
+#### BeanFactory和ApplicationContext有什么区别
+
+`ApplicationContext`是`BeanFactory`的子接口
+
+`ApplicationContext`提供了更完整的功能：
+
+- 继承`MessageSource`，因此支持国际化
+- 统一的资源文件访问方式
+- 提供在监听器中注册bean的事件
+- 同时加载多个配置文件
+- 载入多个（有继承关系上下文，使得每个上下文都专注于一个特定的层次，比如应用的web层）
+
+`BeanFactory`采用的是延迟加载的形式来注入Bean的，即只有在使用到某个Bean时（调用`getBean()`），才会对该`Bean`进行加载实例化。这样，一旦Spring配置出现问题，Bean的某个属性没有注入，BeanFacotry加载后，会直到第一次调用`getBean()`方法才会抛出异常
+
+`ApplicationContext`是在容器启动时，一次性创建了所有的Bean。这样，在容器启动的时候，我们就可以发现Spring配置存在的问，更有利于检查所依赖属性是否注入。`ApplicationContext`启动后预载入所有的单实例Bean，通过预载入单实例bean，确保需要的时候，已经创建好且不需要等待。所以相对于`BeanFactory`，`ApplicationContext`唯一不足时占用内存空间，当程序配置Bean较多时，程序启动较慢。
+
+`BeanFactory`和`ApplicationContext`都支持`BeanPostProcessor`、`BeanFactoryPostProcessor`的使用，但两者之间的区别是：`BeanFactory`需要手动注册，而`ApplicationContext`则是自动注册。
+
+
+
+#### Spring Bean的生命周期
+
+- 解析类得到`BeanDefinition`
+
+- 如果有多个构造方法，则要推断构造方法
+- 
+
+
+
 ### Spring MVC
 
 #### Spring MVC的工作流程
