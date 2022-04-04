@@ -38,7 +38,7 @@ Docker：
   * Docker是内核级别的虚拟化，可以在一个物理虚拟机上运行很多容器实例，服务器性能可以压榨到极致
 
 ## Docker的基本组成
-![001Docker架构图.png](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201022202090.png)
+![001Docker架构图.png](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201022202090.png)
 
 **镜像（image）**：docker镜像就像一个模板，通过这个模板能够创建多个容器（最终服务运行或者项目运行就是在容器之中）
 
@@ -85,7 +85,7 @@ sudo rm -rf /var/lib/docker
 ### 阿里云镜像加速
 参考阿里云容器镜像服务 > 镜像加速器
 
-![002阿里云镜像加速器.png](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201022202091.png)
+![002阿里云镜像加速器.png](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201022202091.png)
 
 
 
@@ -93,7 +93,7 @@ sudo rm -rf /var/lib/docker
 
 * Docker是一个Client-Server结构的系统，Dockers的守护进程运行在主机上，通过Socket与客户端通讯
 * DockerServer接收到Docker-Client的指令，就会执行这个命令
-![003Docker工作原理.png](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201022202092.png)
+![003Docker工作原理.png](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201022202092.png)
 
 2. 
 
@@ -101,7 +101,7 @@ sudo rm -rf /var/lib/docker
 
 > 帮助文档：https://docs.docker.com/reference/
 
-![004Docker命令小结.png](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201022202093.png)
+![004Docker命令小结.png](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201022202093.png)
 
 ### 启动docker
 	systemctl start docker
@@ -267,7 +267,7 @@ docker run -d -p 8088:9000 --restart=always -v /var/run/docker.sock --privileged
 * 当boot加载完成之后整个内核就在内存中，此时内存的使用权由bootfs转交给内核，系统会卸载bootfs
 
 - rootfs(root file system)：在bootfs的上一层，包含典型Linux系统中的/dev，/proc，/bin，/etc等标准目录和文件。对于一个精简的OS，rootfs只需包含基本命令，工具和程序即可
-  ![005Docker镜像加载原理.png](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201022202094.png)
+  ![005Docker镜像加载原理.png](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201022202094.png)
 
 ### docker镜像分层
 Docker镜像都是只读的，当容器启动时，一个新的可写层被加载到镜像顶部，这一层就是容器层，容器层之下都是镜像层
@@ -301,7 +301,7 @@ docker run -it -v /home/test:/home centos /bin/bash
 docker inspect centos
 ```
 
-![006Docker目录挂载.png](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201022202095.png)
+![006Docker目录挂载.png](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201022202095.png)
 
 #### 匿名挂载和具名挂载
 **匿名挂载**：挂载数据卷的时候，-v只指定容器内路径，不指定容器外路径
@@ -408,7 +408,7 @@ COPY			# 类似ADD，将文件拷贝到镜像中
 ENV				# 构建的时候设置环境变量
 ```
 
-![image-20210205151400547](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201022202098.png)
+![image-20210205151400547](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201022202098.png)
 
 - CMD和ENTRYPOINT的区别
 - ADD和COPY的区别

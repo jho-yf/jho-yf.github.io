@@ -168,7 +168,7 @@ Stream是数据渠道，用于操作数据源（集合、数组等）所生成�
 
 ### Stream操作的三个步骤
 
-!["Stream操作步骤"](https://gitee.com/jho-yf/yf-pic-repo/raw/master/Stream%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4.jpg)
+!["Stream操作步骤"](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/Stream%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4.jpg)
 
 - 创建Stream
 

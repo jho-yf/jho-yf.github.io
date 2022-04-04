@@ -88,19 +88,19 @@ JVM平台的各种语言可以共享Java虚拟机带来的**跨平台**、**优�
 
 JVM运行在操作系统上，与硬件没有直接的交互
 
-![d471bf86-12c7-4312-b8c4-c464602c5640](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201282123406.png)
+![d471bf86-12c7-4312-b8c4-c464602c5640](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201282123406.png)
 
 
 
 #### JVM的整体结构
 
-![e07fddb1-3b9b-4823-8448-909c123057d3](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201282132908.png "JVM整体结构")
+![e07fddb1-3b9b-4823-8448-909c123057d3](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201282132908.png "JVM整体结构")
 
 
 
-![JVM架构](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201291032864.png)
+![JVM架构](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201291032864.png)
 
-![JVM架构-中文](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201291032092.png)
+![JVM架构-中文](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201291032092.png)
 
 #### Java代码的执行流程
 
@@ -416,7 +416,7 @@ Java虚拟机的启动是通过引导类加载器（`bootstrap class loader`）�
 
 ### 2. 类加载子系统
 
-![JVM 类加载子系统](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201291040070.png "类加载子系统")
+![JVM 类加载子系统](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201291040070.png "类加载子系统")
 
 #### 类加载器子系统作用
 
@@ -807,7 +807,7 @@ Java虚拟机对Class文件采用的是**按需加载**的方式，也就是说�
 
 ##### 工作原理
 
-![双亲委派](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203080722028.png)
+![双亲委派](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203080722028.png)
 
 - 如果一个类加载器收到类加载请求，它并不会自己先去加载，而是把这个请求委托给父类的加载器去执行加载。
 - 如果父类加载器还存在其父类加载器，则会进一步向上委托，依次递归，请求最终将到达顶层的启动类加载器。
@@ -904,7 +904,7 @@ java.lang.SecurityException: Prohibited package name: java.lang
 ###### 结论
 
 - 由于双亲委派机制，String类要加载需要向上委托至启动类加载器BootstrapClassLoader，BootstrapClassLoader负责加载`java.lang`包底下的所有类，因此将Java源码库底下的`java.lang.String`类加载了，因此[代码1](#代码1)中的自定义的`java.lang.String`类并没有被加载，所以该类静态方法也不会被执行。Java源码库底下的`java.lang.String`类并没有`main()`方法，因此[代码2](#代码2)输出以上[输出2所示错误](#输出2)。
-- `java.LANG`限制包名,不能自定义类在此包名下，会与java类库冲突，安全管理器不通过，因此因此[代码3](#代码3)输出以上[输出3所示错误](#输出3)。
+- `java.lang`限制包名,不能自定义类在此包名下，会与java类库冲突，安全管理器不通过，因此因此[代码3](#代码3)输出以上[输出3所示错误](#输出3)。
 
 > **沙箱安全机制**：将 Java 代码限定在虚拟机(JVM)特定的运行范围中，并且严格限制代码对本地系统资源访问，通过这样的措施来保证对代码的有效隔离，防止对本地系统造成破坏。
 

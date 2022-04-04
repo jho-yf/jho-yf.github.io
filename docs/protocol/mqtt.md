@@ -31,7 +31,7 @@
 
 **MQTT协议的中心是MQTT服务器或者代理（Broker）**
 
-![MQTT Broker](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203131925948.png)
+![MQTT Broker](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203131925948.png)
 
 MQTT这种结构替代了传统的客户端/服务器模型，可以实现一下解耦：
 
@@ -93,7 +93,7 @@ flowchart LR
 
 每个MQTT控制报头都包含一个固定报头
 
-![image-20220313193926985](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203131939058.png)
+![image-20220313193926985](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203131939058.png)
 
 #### 控制报文的类型
 

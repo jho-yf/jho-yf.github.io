@@ -196,7 +196,7 @@ public class DaemonThreadDemo {
 
 Lock锁实现提供了比使用同步方法和语句可以获得的更广泛的锁操作。它们允许更灵活的结构，可能具有非常不同的属性，并且可能支持多个关联的条件对象。
 
-![Lock](https://gitee.com/jho-yf/yf-pic-repo/raw/master/Lock.png)
+![Lock](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/Lock.png)
 
 ### Synchronized
 
@@ -1613,7 +1613,7 @@ graph LR
 
 ### 阻塞队列的架构
 
-![BlockingQueue](https://gitee.com/jho-yf/yf-pic-repo/raw/master/BlockingQueue.png "阻塞队列BlockingQueue")
+![BlockingQueue](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/BlockingQueue.png "阻塞队列BlockingQueue")
 
 ### 阻塞队列分类
 
@@ -1694,7 +1694,7 @@ DelayQueue中的元素只有当其指定的延迟时间到了，才能够从队�
 
 Java中的线程池是通过`Executor`框架实现的，该框架中用到了`Executor`、`Executors`、`ExecutorService`、`ThreadPoolExecutor`这几个类。
 
-![image-20220130101006604](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201301010692.png)
+![image-20220130101006604](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201301010692.png)
 
 ### 线程池使用方式
 

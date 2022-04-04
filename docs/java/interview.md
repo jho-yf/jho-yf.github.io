@@ -174,7 +174,7 @@ JRE：Java运行时环境（Java Runtime Environment）
 
 JVM：Java虚拟机（Java Virtual Machine）
 
-![jdk、jre、jvm](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203051924761.png)
+![jdk、jre、jvm](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203051924761.png)
 
 
 

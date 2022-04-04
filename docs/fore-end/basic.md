@@ -449,7 +449,7 @@ test.sum(1, 2);
 
 ### MVVM思想
 
-![edd0080fb145315fbc96164c219fee7e_hd](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201102248019.png)
+![edd0080fb145315fbc96164c219fee7e_hd](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201102248019.png)
 
 在`MVVM`之前，前端人员从后端获取需要的数据模型，然后要通过`DOM`操作`Model`渲染到`View`中。而后当用户操作视图，还需通过`DOM`获取`View`中的数据，然后同步到`Model`中。`MVVM`中的**VM**做的事情就是把`DOM`操作完全封装起来，开发人员不用再去更新`Model`和`View`之间是如何相互影响的。
 
@@ -620,7 +620,7 @@ npm install vue
 
 **输出**
 
-![image-20220304073335842](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203040733996.png)
+![image-20220304073335842](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203040733996.png)
 
 #### v-model
 
@@ -655,7 +655,7 @@ npm install vue
 
 **输出**
 
-![image-20220304075306676](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203040753848.png)
+![image-20220304075306676](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203040753848.png)
 
 
 
@@ -757,7 +757,7 @@ npm install vue
 
 在vue中，所有的vue实例都是组件。
 
-![Component Tree](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203191518996.png)
+![Component Tree](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203191518996.png)
 
 - 组件其实是个Vue实例，因此它在定义时也会接收：`data`、`methods`、生命周期函数等
 - 组件是不与页面元素绑定的，否则无法复用，因此没有el属性，组件的渲染需要html模板，所以添加了`template`属性，值就是HTML模板
@@ -821,7 +821,7 @@ npm install vue
 
 每个Vue实例在被创建时都要经过一系列的初始化过程：创建实例、装载模板、渲染模板等等。
 
-![Vue 实例生命周期](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203191549739.png)
+![Vue 实例生命周期](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203191549739.png)
 
 #### 钩子函数
 

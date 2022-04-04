@@ -2,7 +2,7 @@
 
 ## Git工作流
 
-![Git工作流](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202201082233643.png "Git工作流")
+![Git工作流](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202201082233643.png "Git工作流")
 
 **`master`分支：**主要用于跟线上系统保持一致，所有上线的分支都是从`master`出来的，一般情况下开发人员是碰触不到的，主要由项目经理和运维人员维护。
 

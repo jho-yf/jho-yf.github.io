@@ -29,7 +29,7 @@
 
 > https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS
 
-![跨域流程](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203201554411.png)
+![跨域流程](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203201554411.png)
 
 
 
@@ -37,7 +37,7 @@
 
 ### 方法一：使用Nginx部署为同一域
 
-![使用nginx部署为同一域](https://gitee.com/jho-yf/yf-pic-repo/raw/master/202203201702212.png)
+![使用nginx部署为同一域](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202203201702212.png)
 
 ### 方法二：允许请求跨域
 

@@ -92,13 +92,13 @@ graph LR
 
 #### 服务注册/发现&注册中心
 
-![服务注册/发现&注册中心](https://gitee.com/jho-yf/yf-pic-repo/raw/master/u=3213972055,539592222&fm=253&app=138&f=PNG&fmt=auto&q=75)
+![服务注册/发现&注册中心](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/u=3213972055,539592222&fm=253&app=138&f=PNG&fmt=auto&q=75)
 
 A服务调用B服务，A服务并不知道B服务当前在哪几台服务器上，那些是健康状态，那些服务已经下线。通过**注册中心**，使用**服务发现机制**可以解决这个问题。
 
 #### 配置中心
 
-![配置中心](https://gitee.com/jho-yf/yf-pic-repo/raw/master/u=2675427670,82118253&fm=253&app=138&f=PNG&fmt=auto&q=75)
+![配置中心](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/u=2675427670,82118253&fm=253&app=138&f=PNG&fmt=auto&q=75)
 
 每个服务最终都有大量的配置，并且每个服务都可能部署在多台服务器。使用**配置中心集中管理微服务的配置信息**，就可以让每个服务在配置中心获取自己的配置，开发/运维人员只需要在配置中心修改相应的配置即可。
 
@@ -106,7 +106,7 @@ A服务调用B服务，A服务并不知道B服务当前在哪几台服务器上�
 
 在微服务架构中，微服务之间通过网络进行通信，存在相互依赖关系，当其中一个服务不可用时，有可能会造成**雪崩效应**。为了防止这种情况，需要有一定的**容错机制**来保护服务。
 
-![雪崩效应](https://gitee.com/jho-yf/yf-pic-repo/raw/master/u=3141294658,1333772376&fm=253&app=138&f=PNG&fmt=auto&q=75)
+![雪崩效应](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/u=3141294658,1333772376&fm=253&app=138&f=PNG&fmt=auto&q=75)
 
 - **服务熔断：**设置服务超时，当被调用的服务经常失败到达某个阈值，我们就可以开启短路保护机制，后来的请求不再取调用这个服务。本地服务调用**fallback（应变计划）**处理请求。
   - 类似：保险丝
@@ -116,14 +116,14 @@ A服务调用B服务，A服务并不知道B服务当前在哪几台服务器上�
 
 在微服务中，**API Gateway**作为整体架构的重要组件，它抽象了微服务中都需要的公共功能，同时提供了**客户端负载均衡、服务自动熔断、灰度发布、统一认证、限流流控、日志统计**等丰富功能。
 
-![img](https://gitee.com/jho-yf/yf-pic-repo/raw/master/OIP-C.g7tPWIER1uCqLqiFQ2q23AHaD_)
+![img](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/OIP-C.g7tPWIER1uCqLqiFQ2q23AHaD_)
 
 
 
 ### 项目微服务架构
 
-![项目微服务架构](https://gitee.com/jho-yf/yf-pic-repo/raw/master/%E6%9C%AA%E6%A0%87%E9%A2%98-1.png)
+![项目微服务架构](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/%E6%9C%AA%E6%A0%87%E9%A2%98-1.png)
 
 ### 项目微服务划分图
 
-![项目微服务划分图](https://gitee.com/jho-yf/yf-pic-repo/raw/master/u=1014782876,913540672&fm=253&app=138&f=PNG&fmt=auto&q=75)
+![项目微服务划分图](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/u=1014782876,913540672&fm=253&app=138&f=PNG&fmt=auto&q=75)
