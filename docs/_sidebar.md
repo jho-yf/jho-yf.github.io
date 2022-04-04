@@ -11,6 +11,7 @@
   - [认识前端](/fore-end/basic)
 
 - 中间件
+  - [Redis](/middleware/redis)
   - [中间件面试题](/middleware/interview)
 
 - DevOps
