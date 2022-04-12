@@ -6,6 +6,7 @@
   - [JUC并发编程](/java/juc)
   - [Java虚拟机(JVM)](/java/jvm)
   - [Java面试题](/java/interview)
+  - [开发规范](/java/spec)
 
 - 前端
   - [认识前端](/fore-end/basic)
