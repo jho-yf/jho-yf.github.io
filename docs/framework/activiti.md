@@ -76,7 +76,7 @@ flowchart LR
 - `libs/*`：activiti依赖jar包
 - `wars/activiti-admin.war`：管控监控流程
 - `wars/activiti-app.war`
-- `wars/activiti-rest.wat`：暴露接口以供外部访问
+- `wars/activiti-rest.war`：暴露接口以供外部访问
 - `notice.txt`：第三方依赖包说明
 - `readme.html`：版本更新说明
 
@@ -121,8 +121,6 @@ mvn compile -Dmavem.test.ship=true -s /d/DevEnv/apache-maven-3.6.3/conf/settings
 
 
 
-
-
 ### sql脚本类型
 
 engine：主要用于创建核心表，如：`ACT_ru*`表等
@@ -130,6 +128,102 @@ engine：主要用于创建核心表，如：`ACT_ru*`表等
 history：主要用于创建历史表，如：`ACT_hi*`表等
 
 identity：主要用于创建用户表以及用户消息表（扩展表的时候可以不使用该脚本），如：`ACT_id*`等
+
+
+
+### 运行activiti-app
+
+将wars目录下的`activiti-app.war`解压，放在`tomcat/webapps`目录中。`tomcat/webapps/activiti-app/WEB-INF/classes/META-INF/activiti-app`，打开`activiti-app.properties`，按需修改配置
+
+```properties
+#
+# SECURITY
+#
+security.rememberme.key=testkey
+
+#
+# DATABASE
+#
+
+datasource.driver=org.h2.Driver
+datasource.url=jdbc:h2:mem:activiti;DB_CLOSE_DELAY=-1
+
+#datasource.driver=com.mysql.jdbc.Driver
+#datasource.url=jdbc:mysql://127.0.0.1:3306/activiti6ui?characterEncoding=UTF-8
+
+datasource.username=sa
+datasource.password=
+
+hibernate.dialect=org.hibernate.dialect.H2Dialect
+#hibernate.dialect=org.hibernate.dialect.MySQLDialect
+#hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+#hibernate.dialect=org.hibernate.dialect.SQLServerDialect
+#hibernate.dialect=org.hibernate.dialect.DB2Dialect
+#hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# 
+# EMAIL
+# 
+
+#email.enabled=true
+#email.host=localhost
+#email.port=1025
+#email.useCredentials=false
+#email.username=
+#email.password=
+
+# The base url that will be used to create urls in emails.
+#email.base.url=http://localhost:9999/activiti-app
+
+#email.from.default=no-reply@activiti.alfresco.com
+#email.from.default.name=Activiti
+#email.feedback.default=activiti@alfresco.com
+        
+#
+# ACTIVITI
+#
+
+activiti.process-definitions.cache.max=500
+
+#
+# DEFAULT ADMINISTRATOR ACCOUNT
+#
+
+admin.email=admin
+admin.password=test
+admin.lastname=Administrator
+
+admin.group=Superusers
+
+# The maximum file upload limit. Set to -1 to set to 'no limit'. Expressed in bytes
+file.upload.max.size=104857600
+
+# For development purposes, data folder is created inside the sources ./data folder
+contentstorage.fs.rootFolder=data/
+contentstorage.fs.createRoot=true
+contentstorage.fs.depth=4
+contentstorage.fs.blockSize=1024
+
+```
+
+启动tomcat
+
+```shell
+bin ./startup.sh & tail -f ../logs/catalina.out
+```
+
+访问：http://localhost:8080/activiti-app，默认用户名：admin，密码：test
+
+
+
+#### 数据库表
+
+##### 用户相关表
+
+- ACT_ID_GROUP：分组表
+- ACT_ID_USER：用户表
+- ACT_ID_MEMBERSHIP：分组-用户关联表
+- ACT_IDM_PERSISTENT_TOKEN：用户登录日志表
 
 
 
