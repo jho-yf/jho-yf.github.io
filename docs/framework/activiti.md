@@ -431,7 +431,7 @@ jdbc.password=
 
 ## 流程引擎
 
-### 相关引擎服务获取流程
+### 相关引擎服务
 
 ```mermaid
 flowchart TB
@@ -547,7 +547,7 @@ public static ProcessEngineConfiguration createProcessEngineConfigurationFromInp
     /*
     	调用BeansConfigurationHelper#parseProcessEngineConfigurationFromInputStream做的事情主要有以下：
     		1. 将inputStream包装成为Spring的Resource对象
-    		2. 根据activiti.cfg.xml中bean的定义加载bean到beanFactory
+    		2. 根据activiti.cfg.xml中bean的定义加载bean到Spring的beanFactory
     		3. 根据beanName(也就是processEngineConfiguration)获取到对应的bean(也就是在activiti.cfg.xml定义的processEngineConfiguration)
     		4. 因此，最后获取到的bean是org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration的实例
     */
@@ -638,3 +638,231 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
 
 #### `ProcessEngineConfigurationImpl`
 
+上面已经提到了，`ProcessEngineConfigurationImpl`提供了一系列默认的流程引擎配置信息、流程服务、表单引擎服务、命令执行器、数据管理类、实体管理类等的初始化工作。接着看看`ProcessEngineConfigurationImpl`如何`buildProcessEngine`。
+
+```java
+public ProcessEngine buildProcessEngine() {
+   	// 调用init方法进行一系列的初始化操作
+    init();
+    // 实例化ProcessEngineImpl类
+    ProcessEngineImpl processEngine = new ProcessEngineImpl(this);
+
+    // 检查是否使用的是activiti 5版本
+    if (isActiviti5CompatibilityEnabled && activiti5CompatibilityHandler != null) {
+        Context.setProcessEngineConfiguration(processEngine.getProcessEngineConfiguration());
+        activiti5CompatibilityHandler.getRawProcessEngine();
+    }
+
+    // 初始化act_ge_property属性数据表
+    // act_ge_property属性数据表存储整个流程引擎级别的数据,初始化表结构时，会默认插入三条记录
+    // 调用postProcessEngineInitialisation就是来s
+    postProcessEngineInitialisation();
+
+    return processEngine;
+}
+
+
+public void init() {
+	
+    // 各种init方法...
+
+}
+```
+
+> 下面，了解一下`ProcessEngineImpl`及其实例化
+
+#### `ProcessEngineImpl`
+
+- 一系列服务类属性的填充
+- 根据`databaseSchemaUpdate`执行不同的初始化数据库表更新逻辑
+- 向流程引擎管理类注册当前的流程引擎实现类实例对象
+- 判断是否需要开启异步执行器
+- 触发流程引擎生命周期监听器
+- 转发`ActivitiEventType.ENGINE_CREATED`事件
+
+> 重点看一下数据库表更新逻辑
+>
+> databaseSchemaUpdate值：
+>
+> 1. `false`：默认值。流程引擎启动时，先从`ACT_GE_PROPERTY`表中查询Activiti引擎的版本值（key为`schemea.version`），然后获取`ProcessEngine`接口中定义的`VERSION`静态变量值，进行对比，如果数据库中的表不存在或者存在但版本不匹配直接抛出异常。
+> 2. `true`：流程引擎启动时，会对所有表进行更新操作（upgrade目录中的DDL脚本），如果数据库中的表不存在则开始创建表（create目录中的DDL脚本）
+> 3. `create-drop`：流程引擎启动时创建表，流程引擎关闭时删除表
+> 4. `drop-create`：流程引擎启动时首先删除数据库中已存在的表，然后重新创建表（**不建议在正式环境中使用**）
+> 5. `create`：流程引擎启动时直接创建表不管数据库是否已存在表，这就意味着如果数据库表已存在，此时如果Activiti引擎的版本值（key为`schemea.version`）和ProcessEngine接口中定义的`VERSION`静态变量值不一致，再次执行创建表的DDL就会报错（**不建议在正式环境中使用**）
+
+```java
+// 判断：1. 是否使用关系型数据库 2. 是否更新数据库表，默认false，可通过activiti.cfg.xml进行配置
+if (processEngineConfiguration.isUsingRelationalDatabase() && processEngineConfiguration.getDatabaseSchemaUpdate() != null) {
+   	// 构建并使用commandExecutor执行数据库表操作
+    commandExecutor.execute(processEngineConfiguration.getSchemaCommandConfig(), new SchemaOperationsProcessEngineBuild());
+}
+```
+
+> 具体看一下，如何执行数据库表更新操作
+
+#### `SchemaOperationsProcessEngineBuild`
+
+主要将`DbSqlSession`包装成为一个可以被commandExecutor执行的`Command`
+
+```java
+public final class SchemaOperationsProcessEngineBuild implements Command<Object> {
+
+  public Object execute(CommandContext commandContext) {
+    // 获取数据库SQL操作Session
+    DbSqlSession dbSqlSession = commandContext.getDbSqlSession();
+    if (dbSqlSession != null) {
+      // 使用dbSqlSession执行更新操作
+      dbSqlSession.performSchemaOperationsProcessEngineBuild();
+    }
+    return null;
+  }
+    
+}
+```
+
+#### `DbSqlSession`
+
+```java
+public void performSchemaOperationsProcessEngineBuild() {
+    // 从ProcessEngineConfiguration获取databaseSchemaUpdate的配置
+    String databaseSchemaUpdate = Context.getProcessEngineConfiguration().getDatabaseSchemaUpdate();
+    log.debug("Executing performSchemaOperationsProcessEngineBuild with setting " + databaseSchemaUpdate);
+    
+    // 如果是drop-create，先把数据库表全部删掉
+    if (ProcessEngineConfigurationImpl.DB_SCHEMA_UPDATE_DROP_CREATE.equals(databaseSchemaUpdate)) {
+      try {
+        dbSchemaDrop();
+      } catch (RuntimeException e) {
+        // ignore
+      }
+    }
+    
+    // 如果是create-drop、drop-create、create，则创建数据库表
+    if (org.activiti.engine.ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP.equals(databaseSchemaUpdate)
+        || ProcessEngineConfigurationImpl.DB_SCHEMA_UPDATE_DROP_CREATE.equals(databaseSchemaUpdate) || ProcessEngineConfigurationImpl.DB_SCHEMA_UPDATE_CREATE.equals(databaseSchemaUpdate)) {
+      dbSchemaCreate();
+
+    } else if (org.activiti.engine.ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE.equals(databaseSchemaUpdate)) {
+      // 如果DB_SCHEMA_UPDATE_FALSE是false(默认)，则校验引擎版本和数据库版本是否对应
+      dbSchemaCheckVersion();
+
+    } else if (ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE.equals(databaseSchemaUpdate)) {
+      // 如果DB_SCHEMA_UPDATE_FALSE为true,则根据版本找到classpath下的db/upgrade的sql脚本执行更新
+      dbSchemaUpdate();
+    }
+  }
+
+```
+
+### 流程引擎源码扩展
+
+#### 扩展`ProcessEngineConfiguration`
+
+新建自定义的`CustomProcessEngineConfiguration`继承`ProcessEngineConfigurationImpl`，覆盖想要自定义的实现的方法。
+
+```java
+public class CustomProcessEngineConfiguration extends ProcessEngineConfigurationImpl {
+
+    @Override
+    public void initBeans() {
+        // 在此处扩展源码
+        super.initBeans();
+    }
+
+    @Override
+    public CommandInterceptor createTransactionInterceptor() {
+        return null;
+    }
+    
+    ...
+
+}
+```
+
+在`activiti.cfg.xml`配置
+
+```xml
+ <!-- 自定义流程引擎配置 -->
+    <bean id="processEngineConfiguration" class="cn.jho.activiti.basic.core.CustomProcessEngineConfiguration">
+        ...
+    </bean>
+```
+
+
+
+#### 自定义流程引擎监听器
+
+新建自定义引擎监听器，实现`ProcessEngineLifecycleListener`
+
+```java
+public class CustomProcessEngineLifecycleListener implements ProcessEngineLifecycleListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomProcessEngineLifecycleListener.class);
+
+    @Override
+    public void onProcessEngineBuilt(ProcessEngine processEngine) {
+        LOGGER.info("onProcessEngineBuilt...");
+    }
+
+    @Override
+    public void onProcessEngineClosed(ProcessEngine processEngine) {
+        LOGGER.info("onProcessEngineClosed...");
+    }
+    
+}
+```
+
+在`activiti.cfg.xml`配置
+
+```xml
+<bean id="customProcessEngineLifecycleListener"
+            class="cn.jho.activiti.basic.core.CustomProcessEngineLifecycleListener"/>
+
+<bean id="processEngineConfiguration" class="cn.jho.activiti.basic.core.CustomProcessEngineConfiguration">
+    <property name="processEngineLifecycleListener" ref="customProcessEngineLifecycleListener"/>
+</bean>
+```
+
+
+
+### 流程引擎性能优化
+
+#### 指定数据库类型
+
+在`activiti.cfg.xml`文件声明`processEngineConfiguration` bean的时候指定属性`databaseType`的类型。
+
+```xml
+<bean id="processEngineConfiguration" class="cn.jho.activiti.basic.core.CustomProcessEngineConfiguration">
+    <!-- 声明数据库类型 -->
+    <property name="databaseType" value="mysql"/>
+</bean>
+```
+
+##### 分析
+
+在`ProcessEngineConfigurationImpl#initDataSource`有这样几行代码
+
+```java
+public void initDataSource() {
+    ...
+
+    if (databaseType == null) {
+      initDatabaseType();
+    }
+    
+}
+```
+
+如果`databaseType`为`null`的话，调用`initDatabaseType()`，接着来看看这个方法
+
+```java
+public void initDatabaseType() {
+    Connection connection = null;
+    try {
+        connection = dataSource.getConnection();
+		...
+    }
+}
+```
+
+> 为了初始化`databaseType`，流程引擎去重新建立了数据库连接，这个过程是很消耗性能，因此在配置文件中指定好`databaseType`就可以优化一部分性能。
