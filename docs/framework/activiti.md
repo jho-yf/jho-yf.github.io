@@ -866,3 +866,171 @@ public void initDatabaseType() {
 ```
 
 > 为了初始化`databaseType`，流程引擎去重新建立了数据库连接，这个过程是很消耗性能，因此在配置文件中指定好`databaseType`就可以优化一部分性能。
+
+
+
+### 手动构建流程引擎
+
+```java
+@Test
+void testCustomInMen() {
+    ProcessEngineConfiguration configuration = new StandaloneInMemProcessEngineConfiguration();
+    ProcessEngine engine = configuration.buildProcessEngine();
+    assertNotNull(engine);
+    LOGGER.info("StandaloneInMemProcessEngineConfiguration构建的流程引擎：{}", engine);
+}
+
+@Test
+void testCustomEngine() {
+    StandaloneProcessEngineConfiguration configuration = new StandaloneProcessEngineConfiguration();
+    configuration.setJdbcDriver("com.mysql.jdbc.Driver");
+    configuration.setJdbcUrl("jdbc:mysql://localhost:3306/yf-activiti-basic-using");
+    configuration.setJdbcUsername("root");
+    configuration.setJdbcPassword("litemall123456");
+    configuration.setDatabaseSchemaUpdate("true");
+    ProcessEngine engine = configuration.buildProcessEngine();
+    assertNotNull(engine);
+    LOGGER.info("StandaloneProcessEngineConfiguration构建的流程引擎：{}", engine);
+}
+
+@Test
+void testCustomEngineByStream() throws IOException {
+    File file = ResourceUtils.getFile("classpath:activiti.cfg.xml");
+    ProcessEngineConfiguration configuration = ProcessEngineConfiguration.createProcessEngineConfigurationFromInputStream(
+        Files.newInputStream(file.toPath()));
+    ProcessEngine engine = configuration.buildProcessEngine();
+    assertNotNull(engine);
+    LOGGER.info("使用文件流构建的流程引擎：{}", engine);
+}
+
+@Test
+void testCustomEngineByResource() {
+    ProcessEngineConfiguration configuration = ProcessEngineConfiguration.createProcessEngineConfigurationFromResource(
+        "activiti.cfg.xml");
+    ProcessEngine engine = configuration.buildProcessEngine();
+    assertNotNull(engine);
+    LOGGER.info("从Resource资源构建的流程引擎：{}", engine);
+}
+```
+
+
+
+### 配置器`ProcessEngineConfigurator`
+
+#### 原理解析
+
+> 先看看`ProcessEngineConfigurator`接口
+
+##### `ProcessEngineConfigurator`
+
+```java
+public interface ProcessEngineConfigurator {
+    
+    // 在所有流程配置初始化之前调用
+    void beforeInit(ProcessEngineConfigurationImpl processEngineConfiguration);
+    
+    // 在流程引擎启动时，可用之前调用，但在所有流程配置初始化之后
+    void configure(ProcessEngineConfigurationImpl processEngineConfiguration);
+    
+    // 定义配置器优先级，数字越小，优先级越高
+    int getPriority();
+
+}
+
+public abstract class AbstractProcessEngineConfigurator implements ProcessEngineConfigurator {
+    
+    public static int DEFAULT_CONFIGURATOR_PRIORITY = 10000;
+
+	@Override
+	public int getPriority() {
+        return DEFAULT_CONFIGURATOR_PRIORITY;
+    }
+    
+    public void beforeInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    
+    }
+    
+    public void configure(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    
+    }
+
+}
+```
+
+> 自定义配置器可以实现`ProcessEngineConfigurator`，或者继承抽象类`AbstractProcessEngineConfigurator`
+
+##### `ProcessEngineConfigurationImpl`的初始化
+
+```java
+// 注入的配置器，主要使用Setter注入
+protected List<ProcessEngineConfigurator> configurators;
+
+// 所有配置器，其中要包括configurators
+protected List<ProcessEngineConfigurator> allConfigurators; // Including auto-discovered configurators
+
+public void init() {
+    
+    // 初始化所有配置器：将所有配置器添加到allConfigurators，包括configurators和使用ServiceLoad加载的配置器，最后根据优先级进行排序
+    initConfigurators();
+    
+    // 循环遍历所有的配置器，调用其beforeInit方法
+    configuratorsBeforeInit();
+    
+    // 各种init()...
+    
+    // 循环遍历所有的配置器，调用其configure方法
+    configuratorsAfterInit();
+    
+}
+```
+
+
+
+#### 自定义配置器
+
+```java
+public class CustomProcessEngineConfigurator extends AbstractProcessEngineConfigurator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomProcessEngineConfigurator.class);
+
+    @Override
+    public void beforeInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
+        LOGGER.info("beforeInit...");
+    }
+
+    @Override
+    public void configure(ProcessEngineConfigurationImpl processEngineConfiguration) {
+        LOGGER.info("configure...");
+    }
+    
+}
+```
+
+##### 添加配置器的方式
+
+###### 方式一 在`activiti.cfg.xml`中注入
+
+```xml
+<bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+    <property name="configurators">
+        <list>
+            <bean class="cn.jho.activiti.basic.core.CustomProcessEngineConfigurator"/>
+        </list>
+    </property>
+</bean>
+```
+
+###### 方式二 ServiceLoad 用SPI的方式加载
+
+关于`ServiceLoad`可看文章：[带你理解 ServiceLoader 的原理与设计思想](https://zhuanlan.zhihu.com/p/212850943)
+
+在`resources/META-INF`文件夹下新建`services/org.activiti.engine.cfg.ProcessEngineConfigurator`
+
+```properties
+cn.jho.activiti.basic.core.CustomProcessEngineConfigurator
+cn.jho.activiti.basic.core.CustomProcessEngineConfigurator1
+cn.jho.activiti.basic.core.CustomProcessEngineConfigurator2
+...
+```
+
+注意：可以使用`ProcessEngineConfigurationImpl#enableConfiguratorServiceLoader`属性开启或关闭ServiceLoad的加载
