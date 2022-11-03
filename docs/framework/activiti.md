@@ -1034,3 +1034,201 @@ cn.jho.activiti.basic.core.CustomProcessEngineConfigurator2
 ```
 
 注意：可以使用`ProcessEngineConfigurationImpl#enableConfiguratorServiceLoader`属性开启或关闭ServiceLoad的加载
+
+
+
+### Spring配置风格获取引擎源码
+
+> 先看看Spring配置风格的`activiti-context.xml`文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/yf-activiti-basic-using"/>
+        <property name="username" value="root"/>
+        <property name="password" value="litemall123456"/>
+    </bean>
+
+    <!-- Spring事务管理器 -->
+    <bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+        <!-- 代表数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 代表是否生成表结构 -->
+        <property name="databaseSchemaUpdate" value="true"/>
+        <!-- 声明数据库类型 -->
+        <property name="databaseType" value="mysql"/>
+        <!--  使用Spring事务管理器  -->
+        <property name="transactionManager" ref="dataSourceTransactionManager"/>
+    </bean>
+
+    <!-- activiti流程引擎 -->
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <!-- 关联processEngineConfiguration -->
+        <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+    </bean>
+
+    <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService"/>
+
+</beans>
+```
+
+> 从`ProcessEngines`开始
+
+#### `ProcessEngines`
+
+```java
+public synchronized static void init() {
+    if (!isInitialized()) {
+        // 获取activiti.cfg.xml资源文件，根据activiti.cfg.xml初始化流程引擎
+        
+        // ...
+
+        // 获取activiti-context.xml资源文件，根据activiti-context.xml初始化流程引擎
+        try {
+            resources = classLoader.getResources("activiti-context.xml");
+        } catch (IOException e) {
+            throw new ActivitiIllegalArgumentException("problem retrieving activiti-context.xml resources on the classpath: " + System.getProperty("java.class.path"), e);
+        }
+        while (resources.hasMoreElements()) {
+            URL resource = resources.nextElement();
+            log.info("Initializing process engine using Spring configuration '{}'", resource.toString());
+            initProcessEngineFromSpringResource(resource);
+        }
+
+        setInitialized(true);
+    } else {
+        log.info("Process engines already initialized");
+    }
+}
+```
+
+> 看看`initProcessEngineFromSpringResource`方法
+
+```java
+protected static void initProcessEngineFromSpringResource(URL resource) {
+    try {
+        // 使用反射加载SpringConfigurationHelper类的Class对象
+        Class<?> springConfigurationHelperClass = ReflectUtil.loadClass("org.activiti.spring.SpringConfigurationHelper");
+        
+        // 获取buildProcessEngine方法
+        Method method = springConfigurationHelperClass.getDeclaredMethod("buildProcessEngine", new Class<?>[] { URL.class });
+        // 执行buildProcessEngine方法
+        ProcessEngine processEngine = (ProcessEngine) method.invoke(null, new Object[] { resource });
+
+        // 缓存
+        String processEngineName = processEngine.getName();
+        ProcessEngineInfo processEngineInfo = new ProcessEngineInfoImpl(processEngineName, resource.toString(), null);
+        processEngineInfosByName.put(processEngineName, processEngineInfo);
+        processEngineInfosByResourceUrl.put(resource.toString(), processEngineInfo);
+
+    } catch (Exception e) {
+        throw new ActivitiException("couldn't initialize process engine from spring configuration resource " + resource.toString() + ": " + e.getMessage(), e);
+    }
+}
+```
+
+> 接下来看看`SpringConfigurationHelper`如何构建流程引擎
+
+#### `SpringConfigurationHelper`
+
+```java
+public static ProcessEngine buildProcessEngine(URL resource) {
+
+    // 通过resource，也就是activiti-context.xml构建Spring应用上下文
+    // 注意：此时的processEngine的构建(包括ProcessEngineConfigurationImpl的构建)已经完全交给Spring容器来做，而activiti使用ProcessEngineFactoryBean来构建processEngine这个复杂的Bean
+    ApplicationContext applicationContext = new GenericXmlApplicationContext(new UrlResource(resource));
+    
+    // 根据ProcessEngine.class获取所有bean对象
+    Map<String, ProcessEngine> beansOfType = applicationContext.getBeansOfType(ProcessEngine.class);
+    if ((beansOfType == null) || (beansOfType.isEmpty())) {
+        throw new ActivitiException("no " + ProcessEngine.class.getName() + " defined in the application context " + resource.toString());
+    }
+
+    // 获取第一个ProcessEngine
+    ProcessEngine processEngine = beansOfType.values().iterator().next();
+
+    return processEngine;
+}
+```
+
+> 重点写一下`ProcessEngineFactoryBean`
+
+#### `ProcessEngineFactoryBean`
+
+> 先看看`ProcessEngineFactoryBean`实现的接口。
+
+##### `FactoryBean`接口
+
+在Spring中有两种类型的bean，一种是普通Bean，一种是工厂Bean，即**FactoryBean**。
+
+也就是说，`processEngineFactoryBean`一个特殊的Bean对象，它将`processEngine`复杂的实例化过程给包装了起来，隐藏了其实例化的细节，给上层应用带来了极大的便利。
+
+关于`FactoryBean`可以看文章[FactoryBean（创建复杂的Bean）](https://www.jianshu.com/p/0f2da242a517)。
+
+##### `ApplicationContextAware`接口
+
+Spring上下文装配的接口，实现这个接口要重写`setApplicationContext(ApplicationContext applicationContext)`方法，Spring在实例化当前类的时候，会调用`setApplicationContext`方法并传入一个`ApplicationContext `（Spring应用上下文对象）
+
+##### `DisposableBean`接口
+
+Spring提供给bean释放资源的方式，实现这个接口要重写`destroy()`方法，在单实例bean销毁时，由`BeanFactory`调用。
+
+> 接着看看它的属性
+
+```java
+// 在xml配置中注入，由于交于Spring管理，在实例化ProcessEngineFactoryBean的时候，也会将ProcessEngineConfigurationImpl实例化
+protected ProcessEngineConfigurationImpl processEngineConfiguration;
+// Spring应用上下文对象
+protected ApplicationContext applicationContext;
+// 将processEngine包装维护起来
+protected ProcessEngine processEngine;
+```
+
+> 具体如何构建`ProcessEngine`，可以看看这个方法
+
+```java
+public ProcessEngine getObject() throws Exception {
+    // 配置表达式管理器
+    configureExpressionManager();
+    // 配置事务管理器，将activiti的事务交于Spring管理
+    configureExternallyManagedTransactions();
+
+    // 设置bean到processEngineConfiguration
+    if (processEngineConfiguration.getBeans() == null) {
+        processEngineConfiguration.setBeans(new SpringBeanFactoryProxyMap(applicationContext));
+    }
+
+    // 构建ProcessEngine
+    this.processEngine = processEngineConfiguration.buildProcessEngine();
+    return this.processEngine;
+}
+```
+
+> 需要注意的是，以上`processEngineConfiguration.buildProcessEngine()`的这个processEngineConfiguration是`SpringProcessEngineConfiguration`，它的`buildProcessEngine`对`ProcessEngineConfigurationImpl`做了扩展。接下来，看看`SpringProcessEngineConfiguration`
+
+#### `SpringProcessEngineConfiguration`
+
+> 这个类继承了`ProcessEngineConfigurationImpl`，对`buildProcessEngine`做了扩展，来看看它做了什么扩展
+
+```java
+@Override
+public ProcessEngine buildProcessEngine() {
+    // 构建流程引擎
+    ProcessEngine processEngine = super.buildProcessEngine();
+    // 标识已初始化完成
+    ProcessEngines.setInitialized(true);
+    // z
+    autoDeployResources(processEngine);
+    return processEngine;
+}
+```
+
