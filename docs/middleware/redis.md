@@ -3,6 +3,7 @@
 ## NoSQL概述
 
 - 关系型数据：表格、行、列
+
 - 传统的RDBMS
   - 结构化组织
   - SQL
@@ -94,7 +95,7 @@
 
 
 
-### 基础知识
+#### 基础知识
 
 - redis是单线程的，所有的数据都放在内存中
 - redis是基于内存操作，CPU不是redis的性能瓶颈，redis的瓶颈是机器的内存和网络带宽
@@ -105,7 +106,7 @@
 
 
 
-### Redis的使用场景
+#### Redis的使用场景
 
 - 内存存储、持久化，内存中是断电即失，所以持久化很重要（rdb、aof）
 - 效率高，可用于高速缓存
@@ -116,7 +117,7 @@
 
 
 
-### 特性
+#### 特性
 
 - 多样化的数据类型
 
@@ -134,7 +135,7 @@
 
   
 
-### 安装目录
+#### 安装目录
 
 - redis-benchmark：性能测试工具
 - redis-check-aof：aof文件修复工具
@@ -145,7 +146,7 @@
 
 
 
-### 性能测试
+#### 性能测试
 
 - redis-benchmark
 
@@ -210,7 +211,7 @@ Examples:
 
 
 
-## key的命名规范
+### key的命名规范
 
 - 数据库中的数据key命名惯例
 
@@ -234,7 +235,9 @@ set user:id:2016035144149 {id:2016035144149, name:jho, fans:1231312, blogs:4324,
 
 
 
-## key操作常用命令
+### key操作常用命令
+
+redis中的key操作
 
 ```bash
 keys *				# 查看当前库所有key
@@ -244,38 +247,32 @@ del key				# 删除指定的key
 unlink key			# 根据value选择非阻塞删除，仅将key从keyspace元数据中删除，真正的删除在后续的异步操作中
 expire key 10		# 为给定key设置过期时间（秒）
 ttl key				# 查看key的过期时间（秒）	-1代表永不过期，-2代表已过期
+```
 
-# 切换数据库
-select index
-# 切换到索引为0的数据库
-select 0
+数据库操作
 
-# 查看DB大小，查看key的数量
-dbsize
+```bash
+select index		# 切换数据库
+select 0			# 切换到索引为0的数据库
 
-# 清空当前数据库
-flushdb
+dbsize				# 查看DB大小，查看key的数量
 
-# 清空所有数据库
-flushall
+flushdb				# 清空当前数据库
+flushall			# 清空所有数据库
 
-# 移动某个key到其他数据库
-move key db
-# 将name移动到索引为1的数据库
-move name 1
+move key db			# 移动某个key到其他数据库
+move name 1			# 将name移动到索引为1的数据库
 ```
 
 
 
-## Redis五大数据类型
 
-- String
-- List
-- Set
-- Hash
-- Zset
 
-### String 字符串
+### Redis五大数据类型
+
+String、List、Set、Hash、Zset
+
+#### String 字符串
 
 - String类型是**二进制安全**的。意味着Redis的String可以包含任何数据，比如JPG图片或者序列化对象
 
@@ -285,7 +282,7 @@ move name 1
 
 - 如图，字符串在内存中分配的实际空间**capacity**一般会高于实际字符长度**len**。当字符串长度小于1M时，扩容都是加倍现有空间。如果超过1M，扩容时会多扩容1M的空间。
 
-#### 基本命令
+##### 基本命令
 
 ```shell
 # 追加往对应key的值字符串
@@ -331,11 +328,11 @@ mget key [key ...]
 getset key value
 ```
 
-#### 数据结构
+##### 数据结构
 
-> String的数据结构为简单动态字符串（Simple Dynamic String，SDS），是可以修改的字符串，内部结构实现上类似于Java的ArrayList，采用预分配冗余空间的方式来减少内存的频繁分配
+String的数据结构为简单动态字符串（Simple Dynamic String，SDS），是可以修改的字符串，内部结构实现上类似于Java的ArrayList，采用预分配冗余空间的方式来减少内存的频繁分配
 
-#### 使用场景
+##### 使用场景
 
 - 计算器
 - 统计多单位的数量
@@ -344,12 +341,12 @@ getset key value
 
 
 
-### List 列表
+#### List 列表
 
 - 在redis里面，list可以当作栈、队列、阻塞队列
 - redis的链表实际上是一个双向链表，在两边插入或者修改值，效率最高，通过索引操作中间的节点性能比较差
 
-#### 基本命令
+##### 基本命令
 
 ```shell
 # 将一个或多个值插入到列表头部（左）
@@ -401,13 +398,13 @@ blpop key [key ...] timeout
 lindex key index	
 ```
 
-#### 数据结构
+##### 数据结构
 
-- Redis List的数据结构为quickList 
+Redis List的数据结构为quickList 
 
 ![带头结点的双向循环链表](https://yf-pic-repo.oss-cn-guangzhou.aliyuncs.com/yf-pic-repo/202204041610002.png)
 
-#### 使用场景
+##### 使用场景
 
 - 消息排队
 - 消息队列
@@ -415,12 +412,12 @@ lindex key index
 
 
 
-### Set 集合
+#### Set 集合
 
 - Set集合里面的元素无序且不重复
 - 自动排重
 
-#### 基本命令
+##### 基本命令
 
 ```shell
 # 往set中添加元素
@@ -454,22 +451,22 @@ sinter key [key ...]
 sunion key [key ...]
 ```
 
-#### 数据结构
+##### 数据结构
 
-- redis的set是String类型的无序集合，底层是value为null的Hash表，所有添加、删除、查找的时间复杂度都是O(1)
+`redis`的`set`是`String`类型的无序集合，底层是value为null的Hash表，所有添加、删除、查找的时间复杂度都是O(1)
 
-#### 使用场景
+##### 使用场景
 
-- 并集：微博共同关注、共同好友、共同爱好
+并集：微博共同关注、共同好友、共同爱好
 
 
 
-### Hash 哈希
+#### Hash 哈希
 
 - 相当于Java的Map集合
 - Hash是一个String类型的field和value的映射表，适合对象的存储
 
-#### 基本命令
+##### 基本命令
 
 ```shell
 # 添加一个或多个k-v
@@ -508,26 +505,27 @@ hincrbyfloat key field increment
 hsetnx key field value
 ```
 
-#### 数据结构
+##### 数据结构
 
-- Hash类型对应的数据结构有两种：
-  - ziplist 压缩列表
-  - hashtable 哈希表
-- 当field-value长度较短且个数较少时，使用ziplist，否则使用hashtable
+Hash类型对应的数据结构有两种：
+- ziplist 压缩列表
+- hashtable 哈希表
 
-#### 使用场景
+当field-value长度较短且个数较少时，使用ziplist，否则使用hashtable
+
+##### 使用场景
 
 - 用户信息、经常变动的信息的保存
 
 
 
-### Zset 有序集合
+#### Zset 有序集合
 
 - 在set的基础上添加根据score排序
 - set的命令zset都可以用
 - 集合中的成员是唯一的，但score是可以重复的
 
-#### 基本命令
+##### 基本命令
 
 ```shell
 # 往set里添加一个元素
@@ -554,13 +552,13 @@ zrevrange salary 0 -1 withscores
 zcount key min max
 ```
 
-#### 数据结构
+##### 数据结构
 
 - zset底层使用了两个数据结构
   - hash：用于关联元素value和权重score，保障元素value的唯一性，可以通过元素value找到相应的score值
   - 跳跃表：用于给元素value进行排序，根据score的范围获取元素列表 
 
-#### 使用场景
+##### 使用场景
 
 - 成绩、工资排序
 - 加权判断
@@ -709,22 +707,29 @@ bitop operation destkey key [key ...]
 
 #### redis事务的特性
 
-- redis事务没有隔离级别的概念
-- 开启事务后，所有在事务中的命令并不会被直接执行，只有发起执行命令（exec）之后才会执行
+- 单独的隔离操作：事务在执行过程中，不会被其他客户端发送来的命令请求打断
+- 没有隔离级别的概念：开启事务后，所有在事务中的命令并不会被直接执行，只有发起执行命令`exec`之后才会执行
+- 不保证原子性：事务中如果有一条命令执行失败（非语法错误），其后的命令仍会执行，没有回滚
+
+
 
 #### 事务中的错误
 
-- 使用事务时可能会遇上以下两种错误：
-  - 事务在执行`EXEC`之前，入队的命令可能会出错：命令可能会产生语法错误（参数数量错误，参数名错误，等等），或者其他更严重的错误，比如内存不足（如果服务器使用 `maxmemory` 设置了最大内存限制的话）
-  - 命令可能在`EXEC`调用之后失败：事务中的命令可能处理了错误类型的键
-- 对于发生在`EXEC`执行之前的错误，redis拒绝执行并自动放弃这个事务。
-- 在`EXEC`命令执行之后所产生的错误即使事务中有某个/某些命令在执行时产生了错误， 事务中的其他命令仍然会继续执行。
+使用事务时可能会遇上以下两种错误：
+- 事务在执行`EXEC`之前，入队的命令可能会出错：命令可能会产生语法错误（参数数量错误，参数名错误，等等），或者其他更严重的错误，比如内存不足（如果服务器使用 `maxmemory` 设置了最大内存限制的话）
+- 命令可能在`EXEC`调用之后失败：事务中的命令可能处理了错误类型的键
+
+对于发生在`EXEC`执行之前的错误，redis拒绝执行并自动放弃这个事务。
+
+`EXEC`命令执行之后所产生的错误即使事务中有某个/某些命令在执行时产生了错误， 事务中的其他命令仍然会继续执行。
 
 #### 使用redis事务
 
 - 开启事务（multi）
 - 命令入队
 - 执行事务（exec）
+
+
 
 ### 事务锁
 
@@ -734,6 +739,8 @@ bitop operation destkey key [key ...]
   - 适用于读多写少的场景
 
 #### 常用命令
+
+redis的`watch`就是乐观锁操作
 
 ```shell
 # 开启事务
@@ -773,6 +780,92 @@ unwatch
 
 
 ### SpringBoot整合
+
+#### 整合步骤
+
+在`pom.xml`中引入`spring-boot-starter-data-redis`依赖
+
+```xml
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+```
+
+在`application.yaml`中配置redis
+
+```yaml
+spring:
+  redis:
+    host: localhost			# redis服务器地址
+    port: 6379				# redis服务器连接端口
+    password: 666666		# redis服务器密码
+    database: 0				# redis数据库索引（默认为0）
+    timeout: 1800000		# 连接超时时间（毫秒）
+    lettuce:
+    	pool: 
+    		max-active: 20	# 连接池最大连接数（使用负值表示没有限制）
+    		max-wait: -1	# 最大阻塞等待时间（使用负值表示没有限制）
+    		max-idle: 5		# 连接池中的最大空闲数
+    		min-idle: 0		# 连接池中的最小空闲数
+```
+
+添加redis配置类
+
+```java
+@Configuration
+public class RedisAutoConfig {
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+
+        // 设置具体的序列化方式
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.setDefaultTyping(ObjectMapper.DefaultTypeResolverBuilder.noTypeInfoBuilder());
+        serializer.setObjectMapper(om);
+
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+
+        // key采用String方式序列化
+        template.setKeySerializer(stringRedisSerializer);
+        // hash的key也采用String方式序列化
+        template.setHashKeySerializer(stringRedisSerializer);
+        // value采用jackson方式序列化
+        template.setValueSerializer(serializer);
+        // hash的value采用jackson方式序列化
+        template.setHashValueSerializer(serializer);
+        template.afterPropertiesSet();
+
+        return template;
+    }
+
+}
+```
+
+使用`RedisTemplate`
+
+```java
+@SpringBootTest
+@Slf4j
+public class RedisSpringBootApplicationTests {
+
+    @Autowired
+    @Qualifier("redisTemplate")
+    private RedisTemplate redisTemplate;
+
+    @Test
+    void testRedisTemplate() {
+        String key = "name";
+        redisTemplate.opsForValue().set(key, "乙方小弟");
+        log.info("value={}", redisTemplate.opsForValue().get(key));
+    }
+```
+
+
 
 #### 源码
 

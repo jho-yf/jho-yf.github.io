@@ -1226,9 +1226,112 @@ public ProcessEngine buildProcessEngine() {
     ProcessEngine processEngine = super.buildProcessEngine();
     // 标识已初始化完成
     ProcessEngines.setInitialized(true);
-    // z
+
+    // 根据配置的部署策略，自动部署流程资源文件
     autoDeployResources(processEngine);
     return processEngine;
 }
 ```
 
+
+
+## 核心API操作系列
+
+### RepositoryService 仓库服务类
+
+Activiti的仓库服务类。所谓的仓库操作的是流程定义文档的两个文件：bpmn文件和流程图片
+
+#### 部署资源
+
+```java
+// 通过classpath资源文件形式部署
+@Test
+void testDeployWithClasspathResource() {
+    String resource = "trivial.bpmn20.xml";
+    Deployment deployment = repositoryService.createDeployment()
+        .name("myprocess")
+        .category("mycategory")
+        .key("mykey")
+        .addClasspathResource(resource)
+        .deploy();
+    assertNotNull(deployment);
+    LOGGER.info("deployment: {}", deployment);
+    LOGGER.info("deployment id: {}", deployment.getId());
+}
+
+
+// 通过文本形式部署
+@Test
+void testDeployWithText() {
+    String text = IoUtil.readFileAsString("trivial.bpmn20.xml");
+    String resourceName = "myresourcename";
+    Deployment deployment = repositoryService.createDeployment()
+        .name("myprocess")
+        .key("mykey")
+        .category("mycategory")
+        .addString(resourceName, text)
+        .deploy();
+    assertNotNull(deployment);
+    LOGGER.info("deployment: {}", deployment);
+    LOGGER.info("deployment id: {}", deployment.getId());
+}
+
+// 通过输入流形式部署
+@Test
+void testDeployByInputStream() {
+    InputStream inputStream = RepositoryServiceTest.class.getClassLoader()
+        .getResourceAsStream("trivial.bpmn20.xml");
+    String resourceName = "myresourcename.bpmn20.xml";
+    Deployment deployment = repositoryService.createDeployment()
+        .name("myprocess")
+        .key("mykey")
+        .category("mycategory")
+        .addInputStream(resourceName, inputStream)
+        .deploy();
+
+    assertNotNull(deployment);
+    LOGGER.info("deployment: {}", deployment);
+    LOGGER.info("deployment id: {}", deployment.getId());
+}
+
+// 通过字节码形式部署
+@Test
+void testDeployByBytes() {
+    String resourceName = "trivial.bpmn20.xml";
+    String text = IoUtil.readFileAsString(resourceName);
+    Deployment deployment = repositoryService.createDeployment()
+        .name("myprocess")
+        .key("mykey")
+        .category("mycategory")
+        .addBytes(resourceName, text.getBytes(StandardCharsets.UTF_8))
+        .deploy();
+
+    assertNotNull(deployment);
+    LOGGER.info("deployment: {}", deployment);
+    LOGGER.info("deployment id: {}", deployment.getId());
+}
+
+// 通过压缩包形式部署
+@Test
+void testDeployByZip() {
+    String resourceName = "trivial.bpmn20.zip";
+    InputStream in = RepositoryServiceTest.class.getClassLoader().getResourceAsStream(resourceName);
+    ZipInputStream zipInputStream = new ZipInputStream(in);
+    Deployment deployment = repositoryService.createDeployment()
+        .name("myprocess")
+        .key("mykey")
+        .category("mycategory")
+        .addZipInputStream(zipInputStream)
+        .deploy();
+
+    assertNotNull(deployment);
+    LOGGER.info("deployment: {}", deployment);
+    LOGGER.info("deployment id: {}", deployment.getId());
+}
+```
+
+#### 部署涉及的表
+
+- `act_re_deployment`：部署对象表，存放流程定义的显示名称、部署时间以及其他相关部署信息，部署一次增加一条记录
+- `act_re_procdef`：流程定义表，存放流程定义的属性信息，部署一个新的流程定义都会在这张表中增加一条记录。（当流程定义key相同的情况下，使用的是版本升级）
+- `act_ge_bytearray`：资源文件表，存储流程定义相关的部署信息。即流程定义文档的存放地。
