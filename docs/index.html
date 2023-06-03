@@ -4,20 +4,23 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/vue.css">
   <link rel="stylesheet" href="https://unpkg.com/docsify-plugin-toc@1.3.1/dist/light.css">
 </head>
 <body>
   <div id="app">Loading...</div>
   <!-- mermaid -->
-  <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true });
+    window.mermaid = mermaid;
+  </script>
+  <script src="//unpkg.com/docsify-mermaid@2.0.0/dist/docsify-mermaid.js"></script>
 
   <script>
     var num = 0;
     // 支持mermaid：https://docsify.js.org/#/zh-cn/markdown?id=%e6%94%af%e6%8c%81-mermaid
     // 支持toc：https://github.com/justintien/docsify-plugin-toc
-    mermaid.initialize({ startOnLoad: false });
     window.$docsify = {
       name: '乙方小弟🤳笔记簿',
       coverpage: true,
@@ -26,17 +29,8 @@
       subMaxLevel: 2,       // 生成目录的最大层级,默认0
       maxLevel: 4,
       repo: 'https://github.com/jho-yf/jho-yf.github.io',
-      markdown: {
-        renderer: {
-          code: function(code, lang) {
-            if (lang === "mermaid") {
-              return (
-                '<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
-              );
-            }
-            return this.origin.code.apply(this, arguments);
-          }
-        }
+      mermaidConfig: {
+        querySelector: ".mermaid"
       },
       toc: {
         tocMaxLevel: 3,
